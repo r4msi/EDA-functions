@@ -101,7 +101,7 @@ allPlots <- function(df, box = F){
 
 ## 2.1 Faster graphics.
 
-It avoids the use of loops.
+It avoids the usage of loops.
 
 ```{r}
 
