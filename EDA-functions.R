@@ -8,7 +8,7 @@
 
 propContingency <- function(df, categories) {
   
-  d = apply(viviendas, 2, function(table){
+  d = apply(df, 2, function(table){
     if (length(unique(table)) < categories ) {
       prop.table(table(table))
     }
