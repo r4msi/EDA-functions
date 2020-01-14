@@ -1,5 +1,31 @@
 
-# 1. Numeric to Factor.
+# 1. Proportion contigency table.
+
+
+# * df: dataframe
+# * categories: Integer. If the variable has <= unique values than categories will plot its contigency table.
+
+
+propContingency <- function(df, categories) {
+  
+  d = apply(viviendas, 2, function(table){
+    if (length(unique(table)) < categories ) {
+      prop.table(table(table))
+    }
+  }
+  )
+  
+  mask <- sapply(d, function(d) length(d)!=0)
+  d[mask]
+  
+}
+
+
+# 2. Numeric to Factor.
+
+# If you equal a data.frame <- factorVariables(df, 10, dataframe=T), it will convert all the variables with less than 10 unique values to a factor.
+# If df = F,  this function returns a list. 1st argument: Number of unique values. 2nd: The column position of the variables with less unique values than "categories", 
+# ... so that you can choose which one convert to factor. Ex. position <- factorVariables(df, 10, F); dataframe[,position[1:4]] <- sapply(dataframe[,position[1:4]], factor)
 
 # * data = dataframe.
 # * categories = Integer. If the variable has <= unique values than categories will be converted to factor.
@@ -28,14 +54,24 @@ factorVariables <- function(data, categories, dataframe = F) {
   
 }
 
+# 3. Factor to Numeric
+
+numericVariables <- function(data, categories) {
+  
+  levels <- apply(data, 2, function(x) length(unique(x)))
+  data[,which(levels >= categories)] <- sapply(data[,which(levels >= categories)], as.numeric )
+  data
+  
+}
 
 
-# 2. Basic Graphics.
+# 4. Basic Graphics.
 
 # * df = A dataframe.
 # * box =
 #   - If FALSE, it will return a density plot of the **NUMERIC** variables overlayed by the density plot of the Normal distribution, so that, it can be visualised the kurtosis and the skew of the data.
 #   - If TRUE, it will plot histograms (mean included).
+# Note: It needs at least 1 factor variable and 1 numeric one.
 
 
 
@@ -93,7 +129,7 @@ allPlots <- function(df, box = F){
 
 
 
-# 2.1 Faster graphics.
+# 4.1 Faster graphics.
 
 # It avoids the usage of loops.
 
@@ -107,12 +143,7 @@ fasterAllPlots <- function(df) {
   
   apply(Filter(is.numeric, df),2 , function(x) {
     ggplot(data.frame(x), aes(x)) + 
-      geom_density(fill="salmon", alpha=.5) +
-      stat_function(
-        fun = dnorm,
-        args = list(mean = mean(x, na.rm = T), sd = sd(x, na.rm = T)),
-        color = "red"
-      )
+      geom_density(fill="salmon", alpha=.5) 
   })
   
 }
