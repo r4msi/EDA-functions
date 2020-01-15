@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 # 1. Proportion contigency table.
 
@@ -356,5 +355,55 @@ fasterAllPlots <- function(df) {
   
 }
 
+# 5. Mosaic ggplot2
 
->>>>>>> cd7bf8a0aab49654c0bebf8ad751b1f9e7527ab4
+mosaic_BinaryTarget <- function(var, target, xname = "Ordinal", targetname = "Nominal/Binary"){
+  df <- data.frame(variable = var, target = target)
+  ggplot(df) +
+    geom_mosaic(aes(product(variable), fill=target)) +
+    labs(x= xname, y=targetname, title="Mosaic Plot")
+}
+
+# 6. V cramer ggplot2
+
+# Needed for the ggplot2 function.
+Vcramer<-function(v,target){
+  if (is.numeric(v)){
+    v<-cut(v,5)
+  }
+  if (is.numeric(target)){
+    target<-cut(target,5)
+  }
+  cramer.v(table(v,target))
+}
+
+# Just needs the df and the y variable. 
+
+VcramerGraphic <- function(matriz, target) {
+  
+  salidaVcramer<-sapply(matriz,function(x) Vcramer(x,target))
+  nam = names(salidaVcramer)
+  df = list()
+  
+  for (i in 1:length(names(salidaVcramer))) {
+    
+    df[[nam[i]]] <- data.frame(value = salidaVcramer[i], variable = nam[i])
+    
+  }
+  
+  d = 2
+  s= data.frame(df[[1]])
+  
+  while(d <= length(names(salidaVcramer)) ) {
+    s = rbind(s, data.frame(df[[d]]))
+    d = d+1
+  }
+  
+  ggplot(s, aes(reorder(variable, -value), value, fill=value)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle = 90)) +
+    scale_fill_gradient(low="red", high = "blue") +
+    ylim(c(0,1)) +
+    labs(title = "V-Crammer", x= "Predictors", y="V+Crammer Value")
+  
+}
