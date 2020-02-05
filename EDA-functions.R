@@ -1,5 +1,44 @@
 
 
+# 0. Imputation with Multiple regression.
+
+# Required packages: ggplot2 and dplyr.
+
+# * df: dataframe
+# * mod: formula of a model ex. mod1 = lm(y ~ x1 + x2, data = zz )
+#   - Recomended using step() to find the best model for the variable with NA.
+# * verbose = TRUE: It returns a histogram of how the data was imputed.
+
+
+lm_impute <- function(df, mod, verbose = F) { 
+  
+  pred = predict(mod, df)
+  
+  var = list(formula(mod)[[2]])
+  n_var = which(names(df)==var)
+  
+  df$Miss = factor(ifelse(is.na(df[,n_var]) , "NA", "OK"))
+  
+  for (i in 1:nrow(df)) {
+    if (df[i, "Miss"]=="NA") {
+      df[i,n_var] = pred[i]
+    }
+  }
+  
+  if (verbose==T) {
+    
+    gg = data.frame(y=df[,n_var],Miss = df$Miss)
+    colnames(gg) = c("Imputed_Y", "Miss")
+    
+    return(ggplot(gg, aes(Imputed_Y, fill=Miss)) +
+             geom_histogram(alpha=.8) +
+             labs(x=names(df)[n_var]) )
+  } else {
+    return(df %>% select(-Miss))
+  }
+  
+}
+
 
 # 1. Proportion contigency table.
 
